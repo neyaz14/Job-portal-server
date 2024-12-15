@@ -7,6 +7,10 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
+ 
+
+
+
 
 
 const uri = `mongodb+srv://${process.env.DB_user}:${process.env.DB_key}@cluster0.epj76.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
