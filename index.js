@@ -62,13 +62,9 @@ async function run() {
     })
 
 
-
-
-
-
-
     // get all data, get one data, get some data [o, 1, many]
-    app.get('/job-application', async (req, res) => {
+    // 
+    app.get('/job-applications', async (req, res) => {
       const email = req.query.email;
       const query = { applicant_email: email }
       const result = await jobApplicationCollection.find(query).toArray();
@@ -88,11 +84,6 @@ async function run() {
 
       res.send(result);
     })
-
-
-
-
-
 
     // job application api
     app.post('/job-applications', async (req, res) => {
