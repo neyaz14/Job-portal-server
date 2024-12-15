@@ -93,6 +93,13 @@ async function run() {
     })
 
 
+    // create job as a hr
+    app.post('/jobs', async(req,res)=>{
+      const newJob = req.body;
+      const result = await jobApplicationCollection.insertOne(newJob);
+      res.send(result)
+    })
+
 
 
 
