@@ -5,7 +5,7 @@
  * 
  * 
  * 2. send token (generated in the server side) to the client side
- * local storage --> easier 
+ * local storage --> easier || but safer na
  * 
  * httpOnly cookies ---> better
  * 

@@ -10,7 +10,10 @@ const cookieParser = require('cookie-parser');
 
 // middleware 
 const port = process.env.PORT || 5000;
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173'],
+  credentials: true
+}));
 app.use(express.json());
 app.use(cookieParser());
 
@@ -54,16 +57,16 @@ async function run() {
     const jobsCollection = client.db('job-portal').collection('jobs');
     const jobApplicationCollection = client.db('job-portal').collection('job_applications');
 
-// auth related api
-    app.post('/jwt', async (req, res)=>{
+    // auth related api
+    app.post('/jwt', async (req, res) => {
       const user = req.body;
-      const token = jwt.sign(user, process.env.JWT_Secrect, {expiresIn:'1h'});
+      const token = jwt.sign(user, process.env.JWT_Secrect, { expiresIn: '1h' });
       res
-      .cookie('token', token,{
-        httponly: true,
-        secure:false,
-      })
-      .send({success:true}); 
+        .cookie('token', token, {
+          httponly: true,
+          secure: false,
+        })
+        .send({ success: true });
     })
 
 
@@ -102,9 +105,12 @@ async function run() {
       const query = { applicant_email: email }
       const result = await jobApplicationCollection.find(query).toArray();
 
+      // console.log('cookies ', req.cookies)
+
+
       // fokira way to aggregate data
       for (const application of result) {
-        console.log(application.job_id)
+        // console.log(application.job_id)
         const query1 = { _id: new ObjectId(application.job_id) }
         const job = await jobsCollection.findOne(query1);
         if (job) {
@@ -125,29 +131,29 @@ async function run() {
       res.send(result)
     })
 
-// app.get('/job-appllications/:id) ==> mean get a specific job application by id 
+    // app.get('/job-appllications/:id) ==> mean get a specific job application by id 
     app.get('/job-applications/jobs/:job_id', async (req, res) => {
       const jobId = req.params.job_id;
       const query = { job_id: jobId }
       const result = await jobApplicationCollection.find(query).toArray();
       res.send(result);
-  })
+    })
 
 
-// patch - partial update from viewapplicantions page
-  app.patch('/job-applications/:id', async (req, res) => {
-    const id = req.params.id;
-    const data = req.body;
-    const filter = { _id: new ObjectId(id) };
-    const updatedDoc = {
+    // patch - partial update from viewapplicantions page
+    app.patch('/job-applications/:id', async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
         $set: {
-            status: data.status
+          status: data.status
         }
-    }
-    const result = await jobApplicationCollection.updateOne(filter, updatedDoc);
-    console.log(data, 'updated')
-    res.send(result)
-  })
+      }
+      const result = await jobApplicationCollection.updateOne(filter, updatedDoc);
+      // console.log(data, 'updated')
+      res.send(result)
+    })
 
     // create job as a hr
     app.post('/jobs', async (req, res) => {
@@ -155,7 +161,7 @@ async function run() {
       const result = await jobsCollection.insertOne(newJob);
 
 
-// Need a better understanding 
+      // Need a better understanding 
 
 
       // Not the best way (use aggregate) 
