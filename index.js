@@ -48,8 +48,14 @@ async function run() {
     const jobApplicationCollection = client.db('job-portal').collection('job_applications');
 
     app.get('/jobs', async (req, res) => {
-      const coursor = jobsCollection.find();
-      const result = await coursor.toArray();
+
+      const email = req.query.email;
+      let query = {};
+      if (email) {
+          query = { hr_email: email }
+      }
+      const cursor = jobsCollection.find(query);
+      const result = await cursor.toArray();
       res.send(result);
     })
 
@@ -96,7 +102,7 @@ async function run() {
     // create job as a hr
     app.post('/jobs', async(req,res)=>{
       const newJob = req.body;
-      const result = await jobApplicationCollection.insertOne(newJob);
+      const result = await jobsCollection.insertOne(newJob);
       res.send(result)
     })
 
