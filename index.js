@@ -2,10 +2,17 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const cookieParser = require('cookie-parser');
+
+
+
+// middleware 
 const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 
 
@@ -46,6 +53,26 @@ async function run() {
     // all jobs api
     const jobsCollection = client.db('job-portal').collection('jobs');
     const jobApplicationCollection = client.db('job-portal').collection('job_applications');
+
+// auth related api
+    app.post('/jwt', async (req, res)=>{
+      const user = req.body;
+      const token = jwt.sign(user, process.env.JWT_Secrect, {expiresIn:'1h'});
+      res
+      .cookie('token', token,{
+        httponly: true,
+        secure:false,
+      })
+      .send({success:true}); 
+    })
+
+
+
+
+
+
+
+
 
     app.get('/jobs', async (req, res) => {
 
