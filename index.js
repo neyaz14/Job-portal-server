@@ -17,17 +17,23 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
-const VerifyToken = (req, res, next)=>{
-  console.log('inside the verify token middleware ', req.cookies);
+
+
+//making a middleware which will 
+const VerifyToken = (req, res, next) => {
+  // console.log('inside the verify token middleware ', req.cookies);
   const token = req.cookies?.token;
   // console.log(token)
-  if(!token){
-    return res.status(401).send({massege:"Unauthorized User"})
+  if (!token) {
+    return res.status(401).send({ massege: "Unauthorized User" })
   }
-  jwt.verify(token, process.env.JWT_Secrect, (error, decode )=>{
-    if(error){
-      return res.status(401).send({massege: "Access token is not matched"})
+  jwt.verify(token, process.env.JWT_Secrect, (error, decoded) => {
+    if (error) {
+      return res.status(401).send({ message: "Access token is not matched" })
     }
+    // decoding the token 
+    req.user = decoded;
+
     next();
   })
 
@@ -115,9 +121,16 @@ async function run() {
 
     // get all data, get one data, get some data [o, 1, many]
     // 
-    app.get('/job-applications',VerifyToken, async (req, res) => {
+    app.get('/job-applications', VerifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { applicant_email: email }
+
+// now lets check the token 
+      if(req.user.email !== req.query.email){
+        return res.status(403).send({message: "forbidden access "})
+      }
+ 
+
       const result = await jobApplicationCollection.find(query).toArray();
 
       // console.log('cookies ', req.cookies)
