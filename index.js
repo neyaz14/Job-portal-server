@@ -17,7 +17,22 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+const VerifyToken = (req, res, next)=>{
+  console.log('inside the verify token middleware ', req.cookies);
+  const token = req.cookies?.token;
+  // console.log(token)
+  if(!token){
+    return res.status(401).send({massege:"Unauthorized User"})
+  }
+  jwt.verify(token, process.env.JWT_Secrect, (error, decode )=>{
+    if(error){
+      return res.status(401).send({massege: "Access token is not matched"})
+    }
+    next();
+  })
 
+  // next();
+}
 
 
 
@@ -60,7 +75,7 @@ async function run() {
     // auth related api
     app.post('/jwt', async (req, res) => {
       const user = req.body;
-      const token = jwt.sign(user, process.env.JWT_Secrect, { expiresIn: '1h' });
+      const token = jwt.sign(user, process.env.JWT_Secrect, { expiresIn: '5h' });
       res
         .cookie('token', token, {
           httponly: true,
@@ -100,7 +115,7 @@ async function run() {
 
     // get all data, get one data, get some data [o, 1, many]
     // 
-    app.get('/job-applications', async (req, res) => {
+    app.get('/job-applications',VerifyToken, async (req, res) => {
       const email = req.query.email;
       const query = { applicant_email: email }
       const result = await jobApplicationCollection.find(query).toArray();
