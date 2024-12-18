@@ -31,7 +31,7 @@ const VerifyToken = (req, res, next) => {
     if (error) {
       return res.status(401).send({ message: "Access token is not matched" })
     }
-    // decoding the token 
+    // decode --> kon user ta check kora
     req.user = decoded;
 
     next();
@@ -90,6 +90,14 @@ async function run() {
         .send({ success: true });
     })
 
+// token clearing
+app.post('/logout', (req, res)=>{
+  res.clearCookie('token', {
+    httpOnly:true,
+    secure: false
+  })
+  .send({success:true})
+})
 
 
 
@@ -126,6 +134,8 @@ async function run() {
       const query = { applicant_email: email }
 
 // now lets check the token 
+      // req.user.email 
+      // (token er sathe connected  email) !== req.query.email ()
       if(req.user.email !== req.query.email){
         return res.status(403).send({message: "forbidden access "})
       }
@@ -133,12 +143,12 @@ async function run() {
 
       const result = await jobApplicationCollection.find(query).toArray();
 
-      // console.log('cookies ', req.cookies)
+ 
 
 
       // fokira way to aggregate data
       for (const application of result) {
-        // console.log(application.job_id)
+   
         const query1 = { _id: new ObjectId(application.job_id) }
         const job = await jobsCollection.findOne(query1);
         if (job) {
@@ -151,6 +161,9 @@ async function run() {
 
       res.send(result);
     })
+
+
+
 
     // job application api
     app.post('/job-applications', async (req, res) => {
