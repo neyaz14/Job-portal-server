@@ -11,7 +11,10 @@ const cookieParser = require('cookie-parser');
 // middleware 
 const port = process.env.PORT || 5000;
 app.use(cors({
-  origin: ['http://localhost:5173'],
+  origin: ['http://localhost:5173',
+    'http://job-portal-96ac9.web.app','http://job-portal-96ac9.firebaseapp.com'
+    
+  ],
   credentials: true
 }));
 app.use(express.json());
@@ -69,7 +72,7 @@ async function run() {
 
 
     //   await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
 
 
@@ -85,11 +88,11 @@ async function run() {
       res
         .cookie('token', token, {
           httponly: true,
-          secure: false,
+          secure: process.env.NODE_ENV === "production",
         })
         .send({ success: true });
     })
-
+    
 // token clearing
 app.post('/logout', (req, res)=>{
   res.clearCookie('token', {
